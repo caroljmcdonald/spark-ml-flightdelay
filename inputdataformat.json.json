@@ -1,0 +1,14 @@
+{
+    "_id": "AA_2017-01-01_ATL_LGA_1678",
+    "dofW": 7,
+    "carrier": "AA",
+    "origin": "ATL",
+    "dest": "LGA",
+    "crsdephour": 17,
+    "crsdeptime": 1700,
+    "depdelay": 0.0,
+    "crsarrtime": 1912,
+    "arrdelay": 0.0,
+    "crselapsedtime": 132.0,
+    "dist": 762.0
+}
