@@ -90,23 +90,25 @@ object SparkKafkaConsumer {
 
         import org.apache.spark.sql.functions._
         val df: Dataset[FlightwPred] = spark.read.schema(schema).json(rdd).as[FlightwPred]
+        println("dstream dataset")
         df.show
         df.createOrReplaceTempView("flight")
-
+        println("what is the count of predicted delay/notdelay for this dstream dataset")
         df.groupBy("pred_dtree").count().show()
 
-        spark.sql("select crsdephour, label, count(label) from flight group by crsdephour, label order by crsdephour").show
-
+        println("what is the count of predicted delay/notdelay by scheduled departure hour")
         spark.sql("select crsdephour, pred_dtree, count(pred_dtree) from flight group by crsdephour, pred_dtree order by crsdephour").show
-
+        println("what is the count of predicted delay/notdelay by origin")
         spark.sql("select origin, pred_dtree, count(pred_dtree) from flight group by origin, pred_dtree order by origin").show
-
+        println("what is the count of predicted and actual  delay/notdelay by origin")
+        spark.sql("select origin, pred_dtree, count(pred_dtree),label, count(label) from flight group by origin, pred_dtree, label order by origin, label, pred_dtree").show
+        println("what is the count of predicted delay/notdelay by dest")
         spark.sql("select dest, pred_dtree, count(pred_dtree) from flight group by dest, pred_dtree order by dest").show
-
+        println("what is the count of predicted delay/notdelay by origin,dest")
         spark.sql("select origin,dest, pred_dtree, count(pred_dtree) from flight group by origin,dest, pred_dtree order by origin,dest").show
-
+        println("what is the count of predicted delay/notdelay by day of the week")
         spark.sql("select dofW, pred_dtree, count(pred_dtree) from flight group by dofW, pred_dtree order by dofW").show
-
+        println("what is the count of predicted delay/notdelay by carrier")
         spark.sql("select carrier, pred_dtree, count(pred_dtree) from flight group by carrier, pred_dtree order by carrier").show
 
       }

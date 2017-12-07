@@ -71,7 +71,7 @@ object SparkKafkaConsumerProducer extends Serializable {
       modelpath = args(0)
       topics = args(1)
       topicp = args(2)
-    }else{
+    } else {
       System.out.println("Using hard coded parameters unless you specify the model path, subscribe topic and publish topic. For example /user/user01/data/cfModel /user/user01/stream:flights /user/user01/stream:flightp ")
     }
 
@@ -126,11 +126,12 @@ object SparkKafkaConsumerProducer extends Serializable {
         import spark.implicits._
         import org.apache.spark.sql.functions._
         val df: Dataset[Flight] = spark.read.schema(schema).json(rdd).as[Flight]
-        println("show dataframe received ")
+        println("show dstream dataset received ")
         df.show
 
         // get cluster categories from  model
         val predictions = model.transform(df)
+        println("show dstream dataset received with predictions ")
         predictions.show()
         //  categories.show
         predictions.createOrReplaceTempView("flights")
@@ -143,6 +144,12 @@ object SparkKafkaConsumerProducer extends Serializable {
         println("show predictions fordataframe received ")
 
         lp.show
+        lp.createOrReplaceTempView("flight")
+
+        println("what is the count of predicted  by origin")
+
+        spark.sql("select origin, pred_dtree, count(pred_dtree) from flight group by origin, pred_dtree order by origin").show
+
         val tRDD: org.apache.spark.sql.Dataset[String] = lp.toJSON
 
         val temp: RDD[String] = tRDD.rdd
