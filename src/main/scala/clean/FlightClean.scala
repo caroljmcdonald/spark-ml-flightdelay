@@ -38,12 +38,12 @@ object FlightClean {
     df1.count()
     val df2 = df1.na.drop
     df2.count()
-
+    val toDouble = udf { s: Integer => (s / 100.0).round }
     val df = df2.withColumn("crsdephour", toDouble(df2("CRS_DEP_TIME")))
     df.count
 
     df.createOrReplaceTempView("flights")
-    val toDouble = udf { s: Integer => (s / 100.0).round }
+
 
     val ds: Dataset[Flight] = spark.sql("select DAY_OF_MONTH as dofM, DAY_OF_WEEK as dofW, CARRIER as carrier,FL_DATE as fldate , FL_NUM as flnum, ORIGIN as origin, DEST as dest,crsdephour as crsdephour, CRS_DEP_TIME  as crsdeptime, DEP_DELAY_NEW as depdelay, CRS_ARR_TIME as crsarrtime ,ARR_DELAY_NEW as arrdelay, CRS_ELAPSED_TIME as crselapsedtime , DISTANCE as dist   from flights").as[Flight]
     println("ds :" + ds.count() + "ds :" + df1.count())

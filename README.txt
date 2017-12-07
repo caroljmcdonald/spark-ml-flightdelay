@@ -29,19 +29,70 @@ from the project data folder:
 For VMWare use:  $ scp  *.csv user01@ipaddress:/user/user01/.
 For Virtualbox use:  $ scp -P 2222 *.csv  user01@127.0.0.1:/user/user01/data/. 
 
-You can run these examples in the spark shell by copy past the code from the scala file in the spark shell after launching:
+You can run the code in the spark shell by copy pasting the code from the scala file in the spark shell after launching:
  
 $spark-shell --master local[2]
 
 Or you can run the applications with these steps:
 
-Step 1: First compile the project: Select project  -> Run As -> Maven Install
+______________________________________________________
 
-Step 2: Copy the jar and data to the sandbox 
+Step 0: 
 
-To run the  standalone :
+First compile the project: Select project  -> Run As -> Maven Install
+
+Copy the jar and data to the sandbox 
+
+from the target directory:
+scp  *.jar user01@ipaddress:/user/user01/.
+from the data directory:
+scp  *.jsonuser01@ipaddress:/user/user01/.
+____________________________________________________________________
+
+Step 1:  Run the Spark program which will create and save the machine learning model: 
 
 spark-submit --class ml.Flight --master local[2] spark-ml-flightdelay-1.0.jar
 
+______________________________________________________
 
 
+
+- Create the topics to read from and write to in MapR streams:
+
+maprcli stream create -path /user/user01/stream -produceperm p -consumeperm p -topicperm p
+maprcli stream topic create -path /user/user01/stream -topic flights -partitions 3
+maprcli stream topic create -path /user/user01/stream -topic flightp -partitions 3
+
+to get info on the flights topic :
+maprcli stream topic info -path /user/user01/stream -topic flights
+
+to delete topics:
+maprcli stream topic delete -path /user/user01/stream -topic flights  
+maprcli stream topic delete -path /user/user01/stream -topic flightp 
+
+____________________________________________________________________
+
+
+Step 2: Publish flight data to the flights topic
+
+Run the MapR Event Streams Java producer to produce messages with the topic and data file arguments:
+
+java -cp spark-ml-flightdelay-1.0.jar:`mapr classpath` streams.MsgProducer /user/user01/stream:flights /user/user01/data/flights20170102.json
+
+Step 3: Consume from flights topic, enrich with Model predictions, publish to flightp topic 
+
+Run the Spark Consumer Producer (in separate consoles if you want to run at the same time) run the spark consumer with the topic to read from and write to:
+
+spark-submit --class stream.SparkKafkaConsumerProducer --master local[2] spark-ml-flightdelay-1.0-jar-with-dependencies.jar  /user/user01/stream:flights /user/user01/stream:flightp
+
+____________________________________________________________________
+
+Step 4: Consume from the flightp topic
+
+Run the Spark Consumer with the topic to read from
+
+spark-submit --class stream.SparkKafkaConsumer --master local[2] spark-ml-flightdelay-1.0-jar-with-dependencies.jar /user/user01/stream:flightp
+
+or Run the MapR Event Streams Java consumer with the topic to read from:
+
+java -cp spark-ml-flightdelay-1.0.jar:`mapr classpath` streams.MsgConsumer /user/user01/stream:flightp 

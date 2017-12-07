@@ -106,15 +106,17 @@ object Flight {
     println(ntrain.count)
     ntrain.show
     val cvModel = crossval.fit(ntrain)
+    
+    // note if you want to do analyze the decision tree it is easier not to use OneHotEncoding
 
     //  val featureImportances = bestModel.stages.last.asInstanceOf[RandomForestRegressionModel].featureImportances.toArray
 
-    val treeModel = cvModel.bestModel.asInstanceOf[org.apache.spark.ml.PipelineModel].stages.last.asInstanceOf[DecisionTreeClassificationModel]
+  //  val treeModel = cvModel.bestModel.asInstanceOf[org.apache.spark.ml.PipelineModel].stages.last.asInstanceOf[DecisionTreeClassificationModel]
 
-    val featureImportances = treeModel.featureImportances.toArray
+   // val featureImportances = treeModel.featureImportances.toArray
 
-    val fis = s"features importances:\n ${featureCols.zip(featureImportances).map(t => s"\t${t._1} = ${t._2}").mkString("\n")}\n"
-    println(fis)
+   // val fis = s"features importances:\n ${featureCols.zip(featureImportances).map(t => s"\t${t._1} = ${t._2}").mkString("\n")}\n"
+   // println(fis)
 
     val predictions = cvModel.transform(test)
 
