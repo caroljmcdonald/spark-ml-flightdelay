@@ -40,7 +40,7 @@ import org.apache.kafka.common.serialization.StringSerializer
 
 object SparkKafkaConsumerProducer extends Serializable {
 
-  import org.apache.spark.streaming.kafka.producer._
+
 
   // schema for flight data   
   case class Flight(_id: String, dofW: Integer, carrier: String, origin: String,
